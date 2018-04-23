@@ -1,0 +1,14 @@
+{
+  "name": "eth-proj",
+  "version": "1.0.0",
+  "description": "proj",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "blockies",
+  "license": "ISC",
+  "dependencies": {
+    "web3": "github:ethereum/web3.js"
+  }
+}

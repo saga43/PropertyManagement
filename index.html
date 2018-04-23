@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Document</title>
+
+	<link rel="stylesheet" type="text/css" href="main.css">
+
+	<script src="./node_modules/web3/dist/web3.min.js"></script>
+
+</head>
+
+<body>
+
+	<div class="container">
+
+		<h1>Proerty Transfer and Allotment</h1>
+		<button id="TNPButton" onclick="total()">TotalNo oF Property</button>
+		<label id="tnp"></label>
+		<button id="GPCButton" onclick="totalForAddress()">Get Property Count Of Any Address</button>
+		<input id="gpcaddr" type="text">
+		<label id="gpc"></label><br>
+
+		<h2 >Enter the details to allot the property</h2><br>
+
+		<label for="name" class="col-lg-2 control-label">Enter verified address</label>
+		<input id="veraddr" type="text">
+
+		<label for="name" class="col-lg-2 control-label">Enter Property Name</label>
+		<input id="propname" type="text">
+
+		<label for="name" class="col-lg-2 control-label">Enter Property Location</label>
+		<input id="location" type="text">
+
+
+		<button id="APbutton">AllotProperty</button><br>
+		<h2>Enter the details to Transfer the property</h2>
+		
+		
+		<label for="name" class="col-lg-2 control-label">From address</label>
+		<input id="fromaddr" type="text">
+
+		<label for="name" class="col-lg-2 control-label">To address</label>
+		<input id="toaddr" type="text">
+
+		<label for="name" class="col-lg-2 control-label">Enter Property name</label>
+		<input id="propname2" type="text">
+		
+
+		<button id="TPbutton">Transfer Property</button>
+
+
+
+		<label for="name" class="col-lg-2 control-label">Property Allotted Events</label>
+		<p id="errmsg"></p>
+		<label for="name" class="col-lg-2 control-label">Property Transferred</label>
+		<p id="errmsg1"></p>
+
+
+
+	</div>
+
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+	<script>
+		if (typeof web3 !== 'undefined') {
+			web3 = new Web3(web3.currentProvider);
+		} else {
+			// set the provider you want from Web3.providers
+			web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+		}
+		web3.eth.defaultAccount = web3.eth.accounts[0];
+
+		var PropertyTransferContract = web3.eth.contract([
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_ownerAddress",
+				"type": "address"
+			}
+		],
+		"name": "getPropertyCountOfAnyAddress",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"type": "function",
+		"stateMutability": "view"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "a1",
+				"type": "string"
+			},
+			{
+				"name": "a2",
+				"type": "string"
+			}
+		],
+		"name": "stringsEqual",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"type": "function",
+		"stateMutability": "view"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "propDetails",
+		"outputs": [
+			{
+				"name": "name",
+				"type": "string"
+			},
+			{
+				"name": "isSold",
+				"type": "bool"
+			},
+			{
+				"name": "GeoLocation",
+				"type": "string"
+			},
+			{
+				"name": "ownerAddress",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"type": "function",
+		"stateMutability": "view"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_checkOwnerAddress",
+				"type": "address"
+			},
+			{
+				"name": "_propertyName",
+				"type": "string"
+			}
+		],
+		"name": "isOwner",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"type": "function",
+		"stateMutability": "view"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "totalNoOfProperty",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"type": "function",
+		"stateMutability": "view"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "DA",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"type": "function",
+		"stateMutability": "view"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"type": "constructor",
+		"stateMutability": "nonpayable"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"name": "_propertyName",
+				"type": "string"
+			}
+		],
+		"name": "transferProperty",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"type": "function",
+		"stateMutability": "nonpayable"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_verifiedOwner",
+				"type": "address"
+			},
+			{
+				"name": "_propertyName",
+				"type": "string"
+			},
+			{
+				"name": "_areaLocated",
+				"type": "string"
+			}
+		],
+		"name": "allotProperty",
+		"outputs": [],
+		"payable": false,
+		"type": "function",
+		"stateMutability": "nonpayable"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "_verifiedOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "_totalNoOfPropertyCurrently",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"name": "_nameOfProperty",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "_msg",
+				"type": "string"
+			}
+		],
+		"name": "PropertyAlloted",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"name": "_propertyName",
+				"type": "string"
+			},
+			{
+				"indexed": false,
+				"name": "_msg",
+				"type": "string"
+			}
+		],
+		"name": "PropertyTransferred",
+		"type": "event"
+	}
+]);
+
+		var PropertyTransfer1 = PropertyTransferContract.at('0x98e9bb6c1c3791da1218292ab9440cd394a8bca6');
+		//console.log(PropertyTransfer1);
+		function total() {
+			var x = document.getElementById("tnp");
+			x.innerHTML = PropertyTransfer1.totalNoOfProperty();
+			
+		}
+		var z = document.getElementById("gpcaddr");
+		function totalForAddress(){
+			var y= document.getElementById("gpc");
+			
+			y.innerHTML = PropertyTransfer1.getPropertyCountOfAnyAddress(z.value);
+		}
+		//$("gca").click(function () { })
+		//allotProperty(address _verifiedOwner, string _propertyName ,string _areaLocated,string _ownerName)
+		$("#APbutton").click(function () {
+			PropertyTransfer1.allotProperty($("#veraddr").val(), $("#propname").val(), $("#location").val(), { from: web3.eth.accounts[0], gas: 3000000 });
+		});
+		$("#TPbutton").click(function () {
+				PropertyTransfer1.transferProperty($("#fromaddr").val(), $("#toaddr").val(), $("#propname2").val(),{from:$("#fromaddr").val(),gas: 3000000 });//,{from: web3.eth.accounts[0],gas:3000000}
+		});
+
+		var e = PropertyTransfer1.PropertyAlloted({}, { fromBlock: 0, toBlock: 'latest' });//.watch({}, '', 
+		e.watch(function (error, result) {
+			if (!error) {
+				var y = document.getElementById("errmsg");
+				var z = result.args;
+				y.innerHTML += z._verifiedOwner + ' ' + z._totalNoOfPropertyCurrently + '  :  ' + z._nameOfProperty + '<br>';
+				//$("#errmsg1").html += z._verifiedOwner + ' ' + z._totalNoOfPropertyCurrently + '  :  ' + z._nameOfProperty + '<br>';
+				console.log(z._verifiedOwner + ' ' + z._totalNoOfPropertyCurrently);
+				//	PropertyAlloted(address indexed _verifiedOwner, uint256 indexed  _totalNoOfPropertyCurrently, string _nameOfProperty, string _msg);           
+			} else {
+				console.log(error);
+			}
+		});
+		
+		var f = PropertyTransfer1.PropertyTransferred({}, { fromBlock: 0, toBlock: 'latest' });//.watch({}, '', 
+		f.watch(function (error, result) {
+			if (!error) {
+				var y = document.getElementById("errmsg1");
+				var z = result.args;
+				y.innerHTML += z._from + ' ' + z._to + '  :  ' + z._propertyName +''+z._msg + '<br>';
+				console.log(z._from + ' ' + z._to +'::'+z._propertyName);
+				//	PropertyAlloted(address indexed _verifiedOwner, uint256 indexed  _totalNoOfPropertyCurrently, string _nameOfProperty, string _msg);           
+			} else {
+				console.log(error);
+			}
+		});
+
+//	function transferProperty (address _from,address _to, string _propertyName,string _ownerName)
+
+	/*	PropertyTransfer1.(function(error, result){
+            if(!error)
+                {
+                    $("#instructor").html(result[0]+' ('+result[1]+' years old)');
+                    console.log(result);
+                }
+            else
+                console.error(error);
+        });
+		
+        $("#button").click(function() {
+            Coursetro.setInstructor($("#name").val(), $("#age").val());
+        }); */
+	</script>
+
+</body>
+
+</html>
